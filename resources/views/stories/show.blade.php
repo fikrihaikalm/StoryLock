@@ -15,7 +15,7 @@
         </div>
         @endif
 
-        <!-- Story Meta -->
+        <!-- Story  -->
         <div class="p-6 sm:p-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-4">

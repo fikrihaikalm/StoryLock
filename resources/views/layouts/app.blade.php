@@ -25,7 +25,6 @@
                     </a>
                 </div>
 
-<!-- Search Bar -->
                 <div class="flex-1 max-w-md mx-4">
                     <form action="{{ route('stories.index') }}" method="GET">
                         <div class="relative">

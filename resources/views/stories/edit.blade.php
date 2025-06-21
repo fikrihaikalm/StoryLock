@@ -16,7 +16,7 @@
                 @method('PUT')
                 
                 <div class="space-y-6">
-                    <!-- Current Cover Image -->
+                    <!-- Current Cover  -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Current Cover</label>
                         @if($story->cover_image)
@@ -30,7 +30,7 @@
                         @endif
                     </div>
                     
-                    <!-- New Cover Image -->
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">New Cover Image (optional)</label>
                         <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">

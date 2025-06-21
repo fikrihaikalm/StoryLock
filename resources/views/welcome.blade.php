@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Hero Section -->
+
     <div class="text-center mb-16">
         <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
             Temukan dan Bagikan Kisah-Kisah Menakjubkan
@@ -22,7 +22,6 @@
         </div>
     </div>
 
-    <!-- Featured Stories -->
     <div class="mb-16">
         <h2 class="text-2xl font-bold text-gray-900 mb-8">Sorotan Kisah</h2>
         @if($stories->isEmpty())
@@ -38,7 +37,6 @@
         @endif
     </div>
 
-    <!-- Call to Action -->
     <div class="bg-indigo-700 rounded-xl shadow-xl overflow-hidden">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 lg:py-16">
             <div class="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
