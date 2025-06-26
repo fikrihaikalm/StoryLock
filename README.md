@@ -1,66 +1,382 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📚 StoryLock
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**StoryLock** adalah aplikasi web berbagi cerita yang dibangun dengan Laravel. Aplikasi ini menerapkan sistem autentikasi, otorisasi, session management, dan cookies untuk memberikan pengalaman pengguna yang aman dan personal.
 
-## About Laravel
+## 🎯 Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 🔐 Sistem Autentikasi & Otorisasi
+- **Registrasi Pengguna**: Pendaftaran akun baru dengan validasi
+- **Login/Logout**: Sistem masuk dan keluar yang aman
+- **Session Management**: Pengelolaan sesi pengguna menggunakan Laravel Session
+- **Custom Authentication Middleware**: Middleware khusus untuk proteksi route
+- **Authorization**: Kontrol akses berdasarkan kepemilikan konten
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 📖 Manajemen Cerita
+- **CRUD Cerita**: Buat, baca, edit, dan hapus cerita
+- **Sistem Chapter**: Setiap cerita dapat memiliki multiple chapter
+- **Genre Kategorisasi**: Pengelompokan cerita berdasarkan genre
+- **Cover Image**: Upload gambar cover untuk cerita
+- **Slug System**: URL-friendly untuk setiap cerita
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🔍 Fitur Pencarian & Filter
+- **Pencarian**: Cari cerita berdasarkan judul, deskripsi, atau nama penulis
+- **Filter Genre**: Filter cerita berdasarkan kategori genre
+- **Pagination**: Navigasi halaman yang efisien
 
-## Learning Laravel
+### 👤 Profil Pengguna
+- **Dashboard Profil**: Halaman profil personal
+- **Edit Profil**: Update informasi pengguna
+- **Manajemen Cerita**: Kelola cerita yang dimiliki
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Teknologi yang Digunakan
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Framework**: Laravel 10
+- **Database**: MySQL/SQLite
+- **Frontend**: Blade Templates, Tailwind CSS
+- **Authentication**: Custom Session-based Authentication
+- **File Storage**: Laravel Storage (untuk cover images)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🔧 Implementasi Cookies, Session, Autentikasi & Otorisasi
 
-## Laravel Sponsors
+### 1. Session Management
+```php
+// Konfigurasi session di config/session.php
+'driver' => env('SESSION_DRIVER', 'file'),
+'lifetime' => env('SESSION_LIFETIME', 120),
+'cookie' => env('SESSION_COOKIE', 'storylock_session'),
+'http_only' => true,
+'same_site' => 'lax',
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 2. Custom Authentication
+Aplikasi menggunakan custom authentication middleware:
 
-### Premium Partners
+```php
+// app/Http/Middleware/AuthenticateCustom.php
+public function handle(Request $request, Closure $next)
+{
+    if (!Session::has('user_id')) {
+        return redirect()->route('login');
+    }
+    return $next($request);
+}
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 3. Session Storage
+Data pengguna disimpan dalam session setelah login:
+```php
+// Login Controller
+Session::put('user_id', $user->id);
+Session::put('username', $user->username);
+Session::put('nama_lengkap', $user->nama_lengkap);
+```
 
-## Contributing
+### 4. Authorization
+Kontrol akses berdasarkan kepemilikan:
+```php
+// Hanya pemilik yang dapat mengedit/hapus cerita
+$story = Story::where('created_by', Session::get('user_id'))
+            ->findOrFail($id);
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 5. Cookie Security
+- **HTTP Only**: Cookies tidak dapat diakses via JavaScript
+- **Same-Site**: Perlindungan CSRF dengan setting 'lax'
+- **Encryption**: Cookies dienkripsi otomatis oleh Laravel
 
-## Code of Conduct
+## 📋 Persyaratan Sistem
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- PHP >= 8.1
+- Composer
+- Node.js & NPM
+- MySQL/SQLite
+- Web Server (Apache/Nginx)
 
-## Security Vulnerabilities
+## 🚀 Instalasi
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. **Clone Repository**
+```bash
+git clone <repository-url>
+cd StoryLock
+```
 
-## License
+2. **Install Dependencies**
+```bash
+composer install
+npm install
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+3. **Environment Setup**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. **Database Configuration**
+Edit file `.env` dan sesuaikan konfigurasi database:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=storylock
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+5. **Database Migration & Seeding**
+```bash
+php artisan migrate
+php artisan db:seed --class=StoryLockSeeder
+```
+
+6. **Storage Link**
+```bash
+php artisan storage:link
+```
+
+7. **Build Assets**
+```bash
+npm run build
+```
+
+8. **Start Development Server**
+```bash
+php artisan serve
+```
+
+Aplikasi akan berjalan di `http://localhost:8000`
+
+## 👥 Akun Demo
+
+Setelah menjalankan seeder, Anda dapat menggunakan akun berikut:
+
+**Akun 1:**
+- Username: `haikal`
+- Password: `haikal123`
+
+**Akun 2:**
+- Username: `lidia`
+- Password: `password`
+
+## 🗂️ Struktur Proyek
+
+```
+StoryLock/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Auth/           # Authentication controllers
+│   │   │   ├── StoryController.php
+│   │   │   ├── ChapterController.php
+│   │   │   └── ProfileController.php
+│   │   └── Middleware/
+│   │       ├── AuthenticateCustom.php  # Custom auth middleware
+│   │       └── EncryptCookies.php      # Cookie encryption
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Story.php
+│   │   └── Chapter.php
+│   └── Providers/
+├── config/
+│   ├── auth.php              # Authentication config
+│   ├── session.php           # Session config
+│   └── app.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── resources/
+│   └── views/
+│       ├── auth/             # Login/Register views
+│       ├── stories/          # Story management views
+│       └── profile/          # Profile views
+└── routes/
+    └── web.php               # Route definitions
+```
+
+## 🛣️ Route Structure
+
+### Public Routes
+- `GET /` - Homepage (menampilkan featured stories untuk guest, full stories untuk authenticated users)
+- `GET /about` - Halaman tentang aplikasi
+
+### Authentication Routes
+- `GET /login` - Form login
+- `POST /login` - Proses login
+- `GET /register` - Form registrasi
+- `POST /register` - Proses registrasi
+- `POST /logout` - Logout (authenticated only)
+
+### Protected Routes (Memerlukan Authentication)
+- `GET /profile` - Halaman profil pengguna
+- `GET /profile/edit` - Form edit profil
+- `PUT /profile` - Update profil
+
+### Story Management (Authenticated Users)
+- `GET /stories` - Daftar semua cerita
+- `GET /stories/create` - Form buat cerita baru
+- `POST /stories` - Simpan cerita baru
+- `GET /stories/{slug}` - Detail cerita
+- `GET /stories/{id}/edit` - Form edit cerita (owner only)
+- `PUT /stories/{id}` - Update cerita (owner only)
+- `DELETE /stories/{id}` - Hapus cerita (owner only)
+
+### Chapter Management
+- `GET /stories/{story}/chapters/create` - Form buat chapter baru
+- `POST /stories/{story}/chapters` - Simpan chapter baru
+- `GET /chapters/{id}` - Baca chapter
+- `GET /chapters/{id}/edit` - Form edit chapter (owner only)
+- `PUT /chapters/{id}` - Update chapter (owner only)
+- `DELETE /chapters/{id}` - Hapus chapter (owner only)
+
+## 🔒 Security Features
+
+### 1. CSRF Protection
+- Semua form dilindungi dengan CSRF token
+- Middleware `VerifyCsrfToken` aktif untuk semua route web
+
+### 2. Password Hashing
+- Password di-hash menggunakan bcrypt
+- Verifikasi password menggunakan `Hash::check()`
+
+### 3. Session Security
+- Session ID regeneration setelah login
+- HTTP-only cookies untuk mencegah XSS
+- Same-site cookie policy untuk CSRF protection
+
+### 4. Input Validation
+- Validasi input pada semua form
+- Sanitasi data menggunakan Laravel validation rules
+
+### 5. Authorization Checks
+- Middleware custom untuk authentication
+- Owner-based authorization untuk CRUD operations
+- Route protection dengan middleware groups
+
+## 📊 Database Schema
+
+### Users Table
+```sql
+- id (Primary Key)
+- username (Unique)
+- nama_lengkap
+- password (Hashed)
+- created_at
+- updated_at
+```
+
+### Stories Table
+```sql
+- id (Primary Key)
+- judul
+- slug (Unique)
+- genre
+- cover_image (Nullable)
+- deskripsi
+- created_by (Foreign Key to users.id)
+- created_at
+- updated_at
+```
+
+### Chapters Table
+```sql
+- id (Primary Key)
+- story_id (Foreign Key to stories.id)
+- judul
+- konten
+- nomor_chapter
+- created_at
+- updated_at
+```
+
+## 🎨 Frontend Features
+
+### Responsive Design
+- Mobile-first approach dengan Tailwind CSS
+- Responsive navigation dan layout
+- Optimized untuk berbagai ukuran layar
+
+### User Experience
+- Flash messages untuk feedback
+- Loading states dan error handling
+- Intuitive navigation dan breadcrumbs
+
+### Image Handling
+- Upload dan preview cover images
+- Automatic image optimization
+- Fallback untuk missing images
+
+## 🧪 Testing
+
+Untuk menjalankan tests:
+
+```bash
+# Unit Tests
+php artisan test --testsuite=Unit
+
+# Feature Tests
+php artisan test --testsuite=Feature
+
+# Semua Tests
+php artisan test
+```
+
+## 📝 Development Notes
+
+### Session Implementation
+Aplikasi menggunakan file-based session storage dengan konfigurasi:
+- Session lifetime: 120 menit
+- Cookie name: `storylock_session`
+- Encryption: Enabled
+- HTTP Only: True
+
+### Authentication Flow
+1. User mengisi form login
+2. Kredensial divalidasi terhadap database
+3. Jika valid, data user disimpan dalam session
+4. Session ID disimpan dalam encrypted cookie
+5. Middleware memeriksa session pada setiap request
+
+### Authorization Pattern
+```php
+// Contoh authorization check
+if ($story->created_by !== Session::get('user_id')) {
+    abort(403, 'Unauthorized action.');
+}
+```
+
+## 🚀 Deployment
+
+### Production Setup
+1. Set environment ke production di `.env`
+2. Optimize autoloader: `composer install --optimize-autoloader --no-dev`
+3. Cache configuration: `php artisan config:cache`
+4. Cache routes: `php artisan route:cache`
+5. Cache views: `php artisan view:cache`
+
+### Environment Variables
+```env
+APP_ENV=production
+APP_DEBUG=false
+SESSION_DRIVER=database  # Recommended for production
+SESSION_SECURE_COOKIE=true  # For HTTPS
+```
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
+
+## 📄 License
+
+Proyek ini menggunakan [MIT License](https://opensource.org/licenses/MIT).
+
+## 👨‍💻 Developer
+
+Dikembangkan sebagai tugas implementasi Cookies, Session, Autentikasi, dan Otorisasi menggunakan Laravel.
+
+---
+
+**StoryLock** - Platform berbagi cerita dengan keamanan terdepan 🔐📚
